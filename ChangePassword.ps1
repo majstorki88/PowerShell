@@ -1,4 +1,4 @@
-function ChangeAPassword(){
+function ChangePassword(){
 param (
     [string]$oldPassword = $( Read-Host "Insert your old password"),
     [string]$newPassword = $( Read-Host "Insert your new password")
