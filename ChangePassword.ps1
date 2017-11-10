@@ -1,16 +1,13 @@
-function ChangePassword(){
 param (
-    [string]$oldPassword = $( Read-Host "Insert your old password"),
-    [string]$newPassword = $( Read-Host "Insert your new password")
+    [string]$oldPassword = $( Read-Host "Old password"),
+    [string]$newPassword = $( Read-Host "New password")
 )
 
-$ADSystemInfo = New-Object -ComObject ADSystemInfo
-$type = $ADSystemInfo.GetType()
-$user = [ADSI] "LDAP://$($type.InvokeMember('UserName', 'GetProperty', $null, $ADSystemInfo, $null))"
-$user.ChangePassword( $oldPassword, $newPassword)
-}
+$MethodDefinition = @'
+[DllImport("netapi32.dll", CharSet = CharSet.Unicode)]
+public static extern bool NetUserChangePassword(string domainname, string username, string oldPassword, string newPassword);
+'@
 
-ChangeAPassword
+$NetAPI32 = Add-Type -MemberDefinition $MethodDefinition -Name 'NetAPI32' -Namespace 'Win32' -PassThru
 
-Write-Host "Press any key to continue..."
-$x = $host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+$NetAPI32::NetUserChangePassword('.', $env:username, $oldPassword, $newPassword)
